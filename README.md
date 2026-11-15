@@ -1,56 +1,47 @@
-# Welcome to your Expo app 👋
+# Happy Hour
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A phone app that shows which happy hours are running right now, starting with Bed-Stuy, Brooklyn.
 
-## Get started
+The deal data is gathered and refreshed by AI, then spot-checked by a person. That pipeline is the point of the project.
 
-1. Install dependencies
+## Run it
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+npx expo start
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Scan the QR code with an iPhone that has Expo Go. The computer and the phone must be signed in to the same Expo account and on the same Wi-Fi.
 
-### Other setup steps
+## Check it
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```
+node scripts/check-deals.mts          # logic checks
+node node_modules/typescript/bin/tsc --noEmit   # type check
+```
 
-## Learn more
+Both must pass before any change counts as done.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Layout
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+| Path | What it holds |
+| --- | --- |
+| `src/app/index.tsx` | The one screen: deals on now, soonest-ending first |
+| `src/lib/deals.ts` | Pure logic: which deals are running and for how long. No screen code. |
+| `src/data/sample-deals.ts` | The `Deal` shape and invented sample deals |
+| `scripts/check-deals.mts` | Checks for the logic |
 
-## Join the community
+## Decisions
 
-Join our community of developers creating universal apps.
+- **Expo and Expo Go.** Built on Windows, previewed on an iPhone, no Mac needed.
+- **One screen.** The first version answers one question: what is on right now.
+- **Logic apart from the screen.** The logic is tested without a phone.
+- **Every deal carries a source link and a last-checked date.** A deal with neither is not shown as real.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Roadmap
+
+1. Real Bed-Stuy deals, each with a source and a date.
+2. Deal data moves out of the app into a file the app downloads, so data can refresh without a new build.
+3. A scheduled refresh that re-checks each deal.
+4. A way to flag a deal as wrong.
+
+Later: a map, a weekly schedule, more neighborhoods, an App Store release.
