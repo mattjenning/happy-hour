@@ -25,8 +25,10 @@ Both must pass before any change counts as done.
 
 | Path | What it holds |
 | --- | --- |
-| `src/app/index.tsx` | The one screen: deals on now, soonest-ending first |
+| `src/app/index.tsx` | The one screen: deals on now, nearest first |
 | `src/lib/deals.ts` | Pure logic: which deals are running and for how long. No screen code. |
+| `src/lib/distance.ts` | Pure logic: distance between two points |
+| `src/hooks/use-here.ts` | Asks the phone where it is |
 | `src/data/deals.ts` | The `Deal` shape, the real deals, and the rules for adding one |
 | `scripts/check-deals.mts` | Checks for the logic and for the deal data |
 
@@ -36,6 +38,9 @@ Both must pass before any change counts as done.
 - **One screen.** The first version answers one question: what is on right now.
 - **Logic apart from the screen.** The logic is tested without a phone.
 - **Every deal carries a source link and a last-checked date.** A deal with neither is not shown as real.
+
+- **Nearest first.** The list is ordered by distance from the phone. If location is off, it falls back to soonest-ending first and says so.
+- **Location stays on the phone.** It is used to sort the list and is never sent anywhere.
 
 ## Roadmap
 

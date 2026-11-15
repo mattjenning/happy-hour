@@ -13,10 +13,13 @@ import {
   minutesLeft,
   nextStartToday,
 } from '../src/lib/deals.ts';
+import { formatDistance, milesBetween } from '../src/lib/distance.ts';
 
 const base = {
   offer: 'x',
   address: 'x',
+  lat: 40.68,
+  lng: -73.94,
   sourceName: 'x',
   sourceUrl: 'https://example.com',
   lastChecked: '2026-11-15',
@@ -47,6 +50,25 @@ assert.equal(minutesLeft(late, at(0, 30)), null, 'early Sunday: Saturday is not 
 // Sorting: soonest-ending first.
 const onNow = dealsOnNow([long, late, evening], at(18, 0));
 assert.deepEqual(onNow.map((entry) => entry.deal.id), ['a', 'b']);
+
+// Sorting with a location: nearest first, whatever the end times.
+const near: Deal = { ...long, id: 'near', lat: 40.681, lng: -73.94 };
+const far: Deal = { ...evening, id: 'far', lat: 40.7, lng: -73.94 };
+const here = { lat: 40.68, lng: -73.94 };
+const byDistance = dealsOnNow([far, near], at(18, 0), here);
+assert.deepEqual(byDistance.map((entry) => entry.deal.id), ['near', 'far']);
+assert.ok(byDistance[0].miles !== null && byDistance[0].miles < 0.1);
+assert.equal(dealsOnNow([far, near], at(18, 0))[0].miles, null, 'no location, no distance');
+// Same place: soonest-ending first.
+assert.deepEqual(dealsOnNow([long, evening], at(18, 0), here).map((entry) => entry.deal.id), ['a', 'b']);
+
+// Distance.
+assert.equal(milesBetween(here, here), 0);
+const oneDegreeNorth = milesBetween({ lat: 40, lng: -73.94 }, { lat: 41, lng: -73.94 });
+assert.ok(Math.abs(oneDegreeNorth - 69.1) < 0.1, `one degree of latitude is about 69.1 miles, got ${oneDegreeNorth}`);
+assert.equal(formatDistance(0.02), 'under 0.1 mi');
+assert.equal(formatDistance(0.44), '0.4 mi');
+assert.equal(formatDistance(12.3), '12 mi');
 
 // The next one to start.
 assert.equal(nextStartToday([long, late, evening], at(20, 30))?.id, 'c');
@@ -79,6 +101,9 @@ for (const deal of deals) {
   assert.match(deal.start, clock, `${deal.id}: bad start`);
   assert.match(deal.end, clock, `${deal.id}: bad end`);
   assert.notEqual(deal.start, deal.end, `${deal.id}: empty window`);
+  // Every venue must sit inside a box drawn loosely around Bed-Stuy.
+  assert.ok(deal.lat > 40.67 && deal.lat < 40.7, `${deal.id}: latitude is outside Bed-Stuy`);
+  assert.ok(deal.lng > -73.96 && deal.lng < -73.91, `${deal.id}: longitude is outside Bed-Stuy`);
   assert.ok(deal.sourceName, `${deal.id}: no source name`);
   assert.match(deal.sourceUrl, /^https:\/\//, `${deal.id}: source must be an https link`);
   assert.match(deal.lastChecked, /^\d{4}-\d{2}-\d{2}$/, `${deal.id}: bad date`);

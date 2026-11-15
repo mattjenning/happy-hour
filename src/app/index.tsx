@@ -6,6 +6,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { deals } from '@/data/deals';
+import { useHere, type Here } from '@/hooks/use-here';
 import {
   dealsOnNow,
   formatClock,
@@ -14,6 +15,7 @@ import {
   nextStartToday,
   type DealOnNow,
 } from '@/lib/deals';
+import { formatDistance } from '@/lib/distance';
 
 const NEIGHBORHOOD = 'Bed-Stuy';
 
@@ -37,7 +39,7 @@ function DealCard({ entry }: { entry: DealOnNow }) {
         Until {formatClock(deal.end)} · {formatMinutes(minutesLeft)} left
       </ThemedText>
       <ThemedText type="small" themeColor="textSecondary">
-        {deal.address}
+        {entry.miles === null ? deal.address : `${formatDistance(entry.miles)} · ${deal.address}`}
       </ThemedText>
       <Pressable
         accessibilityRole="link"
@@ -49,6 +51,20 @@ function DealCard({ entry }: { entry: DealOnNow }) {
       </Pressable>
     </ThemedView>
   );
+}
+
+/** One line that says how the list is ordered, and why. */
+function orderLabel(here: Here): string {
+  switch (here.status) {
+    case 'ready':
+      return 'Nearest first';
+    case 'loading':
+      return 'Finding your location…';
+    case 'denied':
+      return 'Ending soonest first. Allow location to see the nearest first.';
+    case 'unavailable':
+      return 'Ending soonest first. Your location is not available right now.';
+  }
 }
 
 function EmptyState({ now }: { now: Date }) {
@@ -67,7 +83,8 @@ function EmptyState({ now }: { now: Date }) {
 
 export default function NowScreen() {
   const now = useNow();
-  const onNow = dealsOnNow(deals, now);
+  const here = useHere();
+  const onNow = dealsOnNow(deals, now, here.status === 'ready' ? here.point : null);
   const timeLabel = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   const dayLabel = now.toLocaleDateString([], { weekday: 'long' });
 
@@ -84,6 +101,9 @@ export default function NowScreen() {
               <ThemedText type="subtitle">On now</ThemedText>
               <ThemedText themeColor="textSecondary">
                 {NEIGHBORHOOD} · {dayLabel} {timeLabel}
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                {orderLabel(here)}
               </ThemedText>
             </ThemedView>
           }

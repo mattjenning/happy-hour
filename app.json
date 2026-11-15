@@ -32,6 +32,12 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Happy Hour uses your location to list the nearest deals first. Your location stays on your phone."
+        }
       ]
     ],
     "experiments": {

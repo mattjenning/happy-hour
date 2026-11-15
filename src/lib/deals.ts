@@ -1,4 +1,5 @@
 import type { Deal } from '../data/deals';
+import { milesBetween, type Point } from './distance.ts';
 
 const MINUTES_IN_DAY = 24 * 60;
 
@@ -43,14 +44,30 @@ export function minutesLeft(deal: Deal, now: Date): number | null {
   return null;
 }
 
-export type DealOnNow = { deal: Deal; minutesLeft: number };
+export type DealOnNow = {
+  deal: Deal;
+  minutesLeft: number;
+  /** Straight-line distance from the phone, or null when the location is unknown. */
+  miles: number | null;
+};
 
-/** Deals running right now, soonest-ending first. */
-export function dealsOnNow(deals: Deal[], now: Date): DealOnNow[] {
-  return deals
-    .map((deal) => ({ deal, minutesLeft: minutesLeft(deal, now) }))
-    .filter((entry): entry is DealOnNow => entry.minutesLeft !== null)
-    .sort((a, b) => a.minutesLeft - b.minutesLeft);
+/**
+ * Deals running right now.
+ *
+ * With a location: nearest first, and soonest-ending first among deals at the
+ * same distance. Without one: soonest-ending first.
+ */
+export function dealsOnNow(deals: Deal[], now: Date, here: Point | null = null): DealOnNow[] {
+  const running: DealOnNow[] = [];
+  for (const deal of deals) {
+    const left = minutesLeft(deal, now);
+    if (left === null) continue;
+    running.push({ deal, minutesLeft: left, miles: here ? milesBetween(here, deal) : null });
+  }
+  return running.sort((a, b) => {
+    if (a.miles !== null && b.miles !== null && a.miles !== b.miles) return a.miles - b.miles;
+    return a.minutesLeft - b.minutesLeft;
+  });
 }
 
 /** The next deal that starts later today, or null. */
