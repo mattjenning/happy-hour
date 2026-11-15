@@ -16,7 +16,8 @@
  * Left out for now:
  * - Sources conflict: Tulum Brooklyn (1056 Broadway), Cocktail Bedstuy,
  *   BKB Brooklyn Brasserie, All Night Skate.
- * - Days not stated: Skytown (921 Broadway), reported noon to 7pm.
+ * - Days not stated: Skytown (921 Broadway), reported noon to 7pm. Its own
+ *   Instagram gives opening hours of noon to 4am daily but no happy hour days.
  * - One thin source: The Holler, Lavender Room, The Taco Bar, Secret Pour,
  *   Hart Bar, The Buren.
  * - May have closed: Chilo's.
@@ -131,6 +132,17 @@ const BK_MAG = {
   sourceUrl: 'https://www.bkmag.com/2024/09/06/the-best-happy-hours-in-brooklyn-right-now/',
   lastChecked: '2026-11-15',
 };
+// The bars' own Instagram posts. These outrank guides and listing sites.
+const LUNATICO_INSTAGRAM = {
+  sourceName: 'Bar LunÀtico on Instagram',
+  sourceUrl: 'https://www.instagram.com/barlunatico/p/DYcudJIFTn-/',
+  lastChecked: '2026-11-15',
+};
+const LUCKYS_INSTAGRAM = {
+  sourceName: "Lucky's on Instagram",
+  sourceUrl: 'https://www.instagram.com/luckyscocktail/reel/DawdQ23sx3O/',
+  lastChecked: '2026-11-15',
+};
 
 export const deals: Deal[] = [
   {
@@ -149,7 +161,7 @@ export const deals: Deal[] = [
     days: [1],
     start: '16:00',
     end: '00:00',
-    ...INFATUATION,
+    ...LUCKYS_INSTAGRAM,
   },
   {
     id: 'luckys',
@@ -161,15 +173,15 @@ export const deals: Deal[] = [
     ...INFATUATION,
   },
   {
-    // Sources give a start of opening time, 4:30pm or 5pm. 5pm is the safe one.
-    // They also disagree on prices, so the offer gives the range.
+    // Prices are from the bar's own pinned post. Guides give the hours as
+    // 5 to 7pm daily; the post confirms 5 to 7pm for its Sunday-to-Wednesday extras.
     id: 'bar-lunatico',
     ...BAR_LUNATICO,
-    offer: 'Lower prices on cocktails, wine and draft beer. Cocktails reported at $8 to $10.',
+    offer: '$10 happy hour cocktails, $2 off wine and beer, and deals on small plates.',
     days: EVERY_DAY,
     start: '17:00',
     end: '19:00',
-    ...INFATUATION,
+    ...LUNATICO_INSTAGRAM,
   },
   {
     id: 'the-swan',
