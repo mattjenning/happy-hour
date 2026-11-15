@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, Linking, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { sampleDeals } from '@/data/sample-deals';
+import { deals } from '@/data/deals';
 import {
   dealsOnNow,
   formatClock,
+  formatDate,
   formatMinutes,
   nextStartToday,
   type DealOnNow,
@@ -36,14 +37,22 @@ function DealCard({ entry }: { entry: DealOnNow }) {
         Until {formatClock(deal.end)} · {formatMinutes(minutesLeft)} left
       </ThemedText>
       <ThemedText type="small" themeColor="textSecondary">
-        {deal.sourceUrl ? `Checked ${deal.lastChecked}` : 'Sample deal, not real'}
+        {deal.address}
       </ThemedText>
+      <Pressable
+        accessibilityRole="link"
+        hitSlop={8}
+        onPress={() => Linking.openURL(deal.sourceUrl)}>
+        <ThemedText type="small" themeColor="textSecondary" style={styles.source}>
+          Source: {deal.sourceName} · checked {formatDate(deal.lastChecked)}
+        </ThemedText>
+      </Pressable>
     </ThemedView>
   );
 }
 
 function EmptyState({ now }: { now: Date }) {
-  const next = nextStartToday(sampleDeals, now);
+  const next = nextStartToday(deals, now);
   return (
     <ThemedView style={styles.empty}>
       <ThemedText>No happy hours running right now.</ThemedText>
@@ -58,7 +67,7 @@ function EmptyState({ now }: { now: Date }) {
 
 export default function NowScreen() {
   const now = useNow();
-  const onNow = dealsOnNow(sampleDeals, now);
+  const onNow = dealsOnNow(deals, now);
   const timeLabel = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   const dayLabel = now.toLocaleDateString([], { weekday: 'long' });
 
@@ -79,6 +88,12 @@ export default function NowScreen() {
             </ThemedView>
           }
           ListEmptyComponent={<EmptyState now={now} />}
+          ListFooterComponent={
+            <ThemedText type="small" themeColor="textSecondary" style={styles.footer}>
+              Deals come from the sources shown and are not yet confirmed in person. Tap a source
+              to see it.
+            </ThemedText>
+          }
         />
       </SafeAreaView>
     </ThemedView>
@@ -112,6 +127,12 @@ const styles = StyleSheet.create({
   venue: {
     fontSize: 18,
     fontWeight: 700,
+  },
+  source: {
+    textDecorationLine: 'underline',
+  },
+  footer: {
+    paddingTop: Spacing.three,
   },
   empty: {
     paddingVertical: Spacing.five,

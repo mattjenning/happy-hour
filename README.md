@@ -27,8 +27,8 @@ Both must pass before any change counts as done.
 | --- | --- |
 | `src/app/index.tsx` | The one screen: deals on now, soonest-ending first |
 | `src/lib/deals.ts` | Pure logic: which deals are running and for how long. No screen code. |
-| `src/data/sample-deals.ts` | The `Deal` shape and invented sample deals |
-| `scripts/check-deals.mts` | Checks for the logic |
+| `src/data/deals.ts` | The `Deal` shape, the real deals, and the rules for adding one |
+| `scripts/check-deals.mts` | Checks for the logic and for the deal data |
 
 ## Decisions
 
@@ -39,7 +39,7 @@ Both must pass before any change counts as done.
 
 ## Roadmap
 
-1. Real Bed-Stuy deals, each with a source and a date.
+1. Real Bed-Stuy deals, each with a source and a date. Started: 6 venues from published guides. Next: confirm them in person and reach 10 or more.
 2. Deal data moves out of the app into a file the app downloads, so data can refresh without a new build.
 3. A scheduled refresh that re-checks each deal.
 4. A way to flag a deal as wrong.

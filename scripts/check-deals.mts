@@ -1,13 +1,26 @@
 /**
- * A quick check of the "what is on right now" logic.
+ * Checks the "what is on right now" logic, then the real deal data.
  * Run with: node scripts/check-deals.mts
  */
 import assert from 'node:assert/strict';
 
-import type { Deal } from '../src/data/sample-deals.ts';
-import { dealsOnNow, formatClock, formatMinutes, minutesLeft, nextStartToday } from '../src/lib/deals.ts';
+import { deals, type Deal } from '../src/data/deals.ts';
+import {
+  dealsOnNow,
+  formatClock,
+  formatDate,
+  formatMinutes,
+  minutesLeft,
+  nextStartToday,
+} from '../src/lib/deals.ts';
 
-const base = { offer: 'x', sourceUrl: null, lastChecked: '2026-11-15' };
+const base = {
+  offer: 'x',
+  address: 'x',
+  sourceName: 'x',
+  sourceUrl: 'https://example.com',
+  lastChecked: '2026-11-15',
+};
 const evening: Deal = { ...base, id: 'a', venue: 'A', days: [0], start: '17:00', end: '19:00' };
 const long: Deal = { ...base, id: 'b', venue: 'B', days: [0], start: '15:00', end: '20:00' };
 const late: Deal = { ...base, id: 'c', venue: 'C', days: [0], start: '22:00', end: '01:00' };
@@ -47,4 +60,29 @@ assert.equal(formatMinutes(70), '1 h 10 min');
 assert.equal(formatMinutes(45), '45 min');
 assert.equal(formatMinutes(120), '2 h');
 
-console.log('All deal checks passed.');
+// A window that ends exactly at midnight.
+const untilMidnight: Deal = { ...base, id: 'd', venue: 'D', days: [0], start: '16:00', end: '00:00' };
+assert.equal(minutesLeft(untilMidnight, at(23, 30)), 30, 'half an hour before midnight');
+assert.equal(minutesLeft(untilMidnight, at(0, 0, 16)), null, 'over at midnight');
+
+assert.equal(formatDate('2026-11-15'), 'Nov 15');
+assert.equal(formatDate('2026-01-05'), 'Jan 5');
+
+// The real data: every deal must be complete and well formed.
+const clock = /^([01]\d|2[0-3]):[0-5]\d$/;
+const ids = new Set<string>();
+for (const deal of deals) {
+  assert.ok(!ids.has(deal.id), `duplicate id ${deal.id}`);
+  ids.add(deal.id);
+  assert.ok(deal.venue && deal.address && deal.offer, `${deal.id}: missing text`);
+  assert.ok(deal.days.length > 0 && deal.days.every((d) => d >= 0 && d <= 6), `${deal.id}: bad days`);
+  assert.match(deal.start, clock, `${deal.id}: bad start`);
+  assert.match(deal.end, clock, `${deal.id}: bad end`);
+  assert.notEqual(deal.start, deal.end, `${deal.id}: empty window`);
+  assert.ok(deal.sourceName, `${deal.id}: no source name`);
+  assert.match(deal.sourceUrl, /^https:\/\//, `${deal.id}: source must be an https link`);
+  assert.match(deal.lastChecked, /^\d{4}-\d{2}-\d{2}$/, `${deal.id}: bad date`);
+}
+assert.ok(deals.length > 0, 'no deals');
+
+console.log(`All deal checks passed. ${deals.length} real deals.`);

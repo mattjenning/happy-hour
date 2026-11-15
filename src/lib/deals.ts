@@ -1,4 +1,4 @@
-import type { Deal } from '../data/sample-deals';
+import type { Deal } from '../data/deals';
 
 const MINUTES_IN_DAY = 24 * 60;
 
@@ -80,4 +80,12 @@ export function formatMinutes(total: number): string {
   if (hours === 0) return `${minutes} min`;
   if (minutes === 0) return `${hours} h`;
   return `${hours} h ${minutes} min`;
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** "2026-11-15" becomes "Nov 15". */
+export function formatDate(isoDate: string): string {
+  const [, month, day] = isoDate.split('-').map(Number);
+  return `${MONTHS[month - 1]} ${day}`;
 }
