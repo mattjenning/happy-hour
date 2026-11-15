@@ -9,10 +9,17 @@
  * - Coordinates come from NYC's public address search
  *   (geosearch.planninglabs.nyc), looked up by street address.
  *
- * Status on 2026-11-15: gathered from published guides, not yet confirmed
- * in person. Left out for now because sources conflict or are too thin:
- * Tulum Brooklyn, Doris, The Holler, Chilo's, Lavender Room, The Taco Bar,
- * Paul's.
+ * Status on 2026-11-15: gathered from published guides and listing sites,
+ * not yet confirmed in person. A deal is listed once two independent sources
+ * agree on it, or one source gives full details and nothing contradicts it.
+ *
+ * Left out for now:
+ * - Sources conflict: Tulum Brooklyn (1056 Broadway), Cocktail Bedstuy,
+ *   BKB Brooklyn Brasserie, All Night Skate.
+ * - Days not stated: Skytown (921 Broadway), reported noon to 7pm.
+ * - One thin source: The Holler, Lavender Room, The Taco Bar, Secret Pour,
+ *   Hart Bar, The Buren.
+ * - May have closed: Chilo's.
  */
 
 export type Deal = {
@@ -78,6 +85,30 @@ const SELUNE = {
   lat: 40.68335,
   lng: -73.93497,
 };
+const DORIS = {
+  venue: 'Doris',
+  address: '1088 Fulton St',
+  lat: 40.68131,
+  lng: -73.95738,
+};
+const PAULS = {
+  venue: "Paul's",
+  address: '283 Nostrand Ave',
+  lat: 40.68898,
+  lng: -73.95107,
+};
+const BARBS = {
+  venue: "Barb's",
+  address: '380A Marcus Garvey Blvd',
+  lat: 40.68408,
+  lng: -73.93844,
+};
+const WONDERVILLE = {
+  venue: 'Wonderville',
+  address: '1186 Broadway',
+  lat: 40.6924,
+  lng: -73.92761,
+};
 
 // Sources.
 const INFATUATION = {
@@ -88,6 +119,16 @@ const INFATUATION = {
 const HAPPY_HOUR_NYC = {
   sourceName: 'Happy Hour NYC',
   sourceUrl: 'https://happy-hour.nyc/brooklyn/bed-stuy-happy-hour',
+  lastChecked: '2026-11-15',
+};
+const FIVE_PM_NYC = {
+  sourceName: '5pm.nyc',
+  sourceUrl: 'https://5pm.nyc/bedford-stuyvesant/',
+  lastChecked: '2026-11-15',
+};
+const BK_MAG = {
+  sourceName: 'Brooklyn Magazine',
+  sourceUrl: 'https://www.bkmag.com/2024/09/06/the-best-happy-hours-in-brooklyn-right-now/',
   lastChecked: '2026-11-15',
 };
 
@@ -121,9 +162,10 @@ export const deals: Deal[] = [
   },
   {
     // Sources give a start of opening time, 4:30pm or 5pm. 5pm is the safe one.
+    // They also disagree on prices, so the offer gives the range.
     id: 'bar-lunatico',
     ...BAR_LUNATICO,
-    offer: '$9 daiquiris, $10 margaritas and Negronis, $2 off wine.',
+    offer: 'Lower prices on cocktails, wine and draft beer. Cocktails reported at $8 to $10.',
     days: EVERY_DAY,
     start: '17:00',
     end: '19:00',
@@ -166,5 +208,44 @@ export const deals: Deal[] = [
     start: '17:00',
     end: '19:00',
     ...HAPPY_HOUR_NYC,
+  },
+  {
+    // A second guide also lists 4 to 6pm on weekends. Only one source says so,
+    // and it is from 2024, so weekends are left out.
+    id: 'doris',
+    ...DORIS,
+    offer: '$5 draft beer and $5 well drinks.',
+    days: WEEKDAYS,
+    start: '17:00',
+    end: '19:00',
+    ...BK_MAG,
+  },
+  {
+    id: 'pauls',
+    ...PAULS,
+    offer: '$8 beer-and-shot combo, plus deals on beer and well drinks.',
+    days: WEEKDAYS,
+    start: '15:00',
+    end: '20:00',
+    ...FIVE_PM_NYC,
+  },
+  {
+    id: 'barbs',
+    ...BARBS,
+    offer: '$5 beer, $5 wine and a $5 Old Fashioned.',
+    days: EVERY_DAY,
+    start: '17:00',
+    end: '20:00',
+    ...FIVE_PM_NYC,
+  },
+  {
+    // Two sources agree on the $6 beer-and-shot. The hours come from one.
+    id: 'wonderville',
+    ...WONDERVILLE,
+    offer: '$6 beer-and-shot combos, $6 well drinks, $8 frozen drinks.',
+    days: WEEKDAYS,
+    start: '17:00',
+    end: '20:00',
+    ...FIVE_PM_NYC,
   },
 ];
