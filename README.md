@@ -44,7 +44,7 @@ Both must pass before any change counts as done.
 
 ## Roadmap
 
-1. Real Bed-Stuy deals, each with a source and a date. Started: 10 venues from published guides and listing sites. Next: confirm them in person.
+1. Real Bed-Stuy deals, each with a source and a date. Started: 11 venues from published guides, listing sites and the bars' own Instagram posts. Next: confirm them in person.
 2. Deal data moves out of the app into a file the app downloads, so data can refresh without a new build.
 3. A scheduled refresh that re-checks each deal.
 4. A way to flag a deal as wrong.

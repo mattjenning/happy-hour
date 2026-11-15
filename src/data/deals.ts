@@ -110,6 +110,12 @@ const WONDERVILLE = {
   lat: 40.6924,
   lng: -73.92761,
 };
+const THE_BROADWAY = {
+  venue: 'The Broadway',
+  address: '1272 Broadway',
+  lat: 40.6909,
+  lng: -73.92495,
+};
 
 // Sources.
 const INFATUATION = {
@@ -141,6 +147,13 @@ const LUNATICO_INSTAGRAM = {
 const LUCKYS_INSTAGRAM = {
   sourceName: "Lucky's on Instagram",
   sourceUrl: 'https://www.instagram.com/luckyscocktail/reel/DawdQ23sx3O/',
+  lastChecked: '2026-11-15',
+};
+// The bar's own specials card, in its "ON SPECIAL" highlight. Matthew found
+// the bar's April 2024 post announcing the burger deal.
+const BROADWAY_INSTAGRAM = {
+  sourceName: 'The Broadway on Instagram',
+  sourceUrl: 'https://www.instagram.com/stories/highlights/17974970192244233/',
   lastChecked: '2026-11-15',
 };
 
@@ -259,5 +272,27 @@ export const deals: Deal[] = [
     start: '17:00',
     end: '20:00',
     ...FIVE_PM_NYC,
+  },
+  {
+    // The 2024 post says 4 to 11pm. The bar's profile now gives kitchen hours
+    // of 5 to 11pm, so 5pm is the safe start. The specials card is from early
+    // 2025 and says $5; Matthew thinks the price has since gone up to $6.
+    id: 'the-broadway-burgers',
+    ...THE_BROADWAY,
+    offer: 'Burger night: $5 burgers, regular or veggie. The price may now be $6.',
+    days: [1],
+    start: '17:00',
+    end: '23:00',
+    ...BROADWAY_INSTAGRAM,
+  },
+  {
+    // "All night" is bounded by the kitchen hours on the bar's profile.
+    id: 'the-broadway-wings',
+    ...THE_BROADWAY,
+    offer: 'Wing night: $1 wings, minimum of five.',
+    days: [3],
+    start: '17:00',
+    end: '23:00',
+    ...BROADWAY_INSTAGRAM,
   },
 ];
