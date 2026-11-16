@@ -1,4 +1,4 @@
-import type { Deal } from '../data/deals';
+import type { Deal, DealKind } from '../data/deals';
 import { milesBetween, type Point } from './distance.ts';
 
 const MINUTES_IN_DAY = 24 * 60;
@@ -68,6 +68,20 @@ export function dealsOnNow(deals: Deal[], now: Date, here: Point | null = null):
     if (a.miles !== null && b.miles !== null && a.miles !== b.miles) return a.miles - b.miles;
     return a.minutesLeft - b.minutesLeft;
   });
+}
+
+/** What the list is narrowed to. */
+export type DealFilter = 'all' | 'drinks' | 'food';
+
+/** A deal on both drinks and food shows under either filter. */
+export function matchesFilter(kind: DealKind, filter: DealFilter): boolean {
+  return filter === 'all' || kind === 'both' || kind === filter;
+}
+
+/** The label shown on a card. */
+export function kindLabel(kind: DealKind): string {
+  if (kind === 'both') return 'Drinks and food';
+  return kind === 'food' ? 'Food' : 'Drinks';
 }
 
 /** The next deal that starts later today, or null. */

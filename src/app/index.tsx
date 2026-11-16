@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FlatList, Linking, Pressable, StyleSheet } from 'react-native';
+import { FlatList, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -7,12 +7,16 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { deals } from '@/data/deals';
 import { useHere, type Here } from '@/hooks/use-here';
+import { useTheme } from '@/hooks/use-theme';
 import {
   dealsOnNow,
   formatClock,
   formatDate,
   formatMinutes,
+  kindLabel,
+  matchesFilter,
   nextStartToday,
+  type DealFilter,
   type DealOnNow,
 } from '@/lib/deals';
 import { formatDistance } from '@/lib/distance';
@@ -33,6 +37,9 @@ function DealCard({ entry }: { entry: DealOnNow }) {
   const { deal, minutesLeft } = entry;
   return (
     <ThemedView type="backgroundElement" style={styles.card}>
+      <ThemedText type="small" themeColor="textSecondary" style={styles.kind}>
+        {kindLabel(deal.kind)}
+      </ThemedText>
       <ThemedText style={styles.venue}>{deal.venue}</ThemedText>
       <ThemedText>{deal.offer}</ThemedText>
       <ThemedText type="small" themeColor="textSecondary">
@@ -53,6 +60,55 @@ function DealCard({ entry }: { entry: DealOnNow }) {
   );
 }
 
+const FILTERS: { value: DealFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'drinks', label: 'Drinks' },
+  { value: 'food', label: 'Food' },
+];
+
+/** Three buttons that narrow the list to drink deals or food deals. */
+function FilterChips({
+  value,
+  onChange,
+}: {
+  value: DealFilter;
+  onChange: (filter: DealFilter) => void;
+}) {
+  const theme = useTheme();
+  return (
+    <View style={styles.chips}>
+      {FILTERS.map((filter) => {
+        const selected = filter.value === value;
+        return (
+          <Pressable
+            key={filter.value}
+            accessibilityRole="button"
+            accessibilityState={{ selected }}
+            accessibilityLabel={`Show ${filter.label.toLowerCase()} deals`}
+            hitSlop={4}
+            onPress={() => onChange(filter.value)}
+            style={[
+              styles.chip,
+              { backgroundColor: selected ? theme.text : theme.backgroundElement },
+            ]}>
+            <ThemedText
+              type="smallBold"
+              style={{ color: selected ? theme.background : theme.textSecondary }}>
+              {filter.label}
+            </ThemedText>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+const EMPTY_MESSAGE: Record<DealFilter, string> = {
+  all: 'No deals running right now.',
+  drinks: 'No drink deals running right now.',
+  food: 'No food deals running right now.',
+};
+
 /** One line that says how the list is ordered, and why. */
 function orderLabel(here: Here): string {
   switch (here.status) {
@@ -67,11 +123,14 @@ function orderLabel(here: Here): string {
   }
 }
 
-function EmptyState({ now }: { now: Date }) {
-  const next = nextStartToday(deals, now);
+function EmptyState({ now, filter }: { now: Date; filter: DealFilter }) {
+  const next = nextStartToday(
+    deals.filter((deal) => matchesFilter(deal.kind, filter)),
+    now,
+  );
   return (
     <ThemedView style={styles.empty}>
-      <ThemedText>No happy hours running right now.</ThemedText>
+      <ThemedText>{EMPTY_MESSAGE[filter]}</ThemedText>
       {next ? (
         <ThemedText type="small" themeColor="textSecondary">
           Next: {next.venue} at {formatClock(next.start)}
@@ -84,7 +143,10 @@ function EmptyState({ now }: { now: Date }) {
 export default function NowScreen() {
   const now = useNow();
   const here = useHere();
-  const onNow = dealsOnNow(deals, now, here.status === 'ready' ? here.point : null);
+  const [filter, setFilter] = useState<DealFilter>('all');
+  const onNow = dealsOnNow(deals, now, here.status === 'ready' ? here.point : null).filter(
+    (entry) => matchesFilter(entry.deal.kind, filter),
+  );
   const timeLabel = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   const dayLabel = now.toLocaleDateString([], { weekday: 'long' });
 
@@ -105,9 +167,10 @@ export default function NowScreen() {
               <ThemedText type="small" themeColor="textSecondary">
                 {orderLabel(here)}
               </ThemedText>
+              <FilterChips value={filter} onChange={setFilter} />
             </ThemedView>
           }
-          ListEmptyComponent={<EmptyState now={now} />}
+          ListEmptyComponent={<EmptyState now={now} filter={filter} />}
           ListFooterComponent={
             <ThemedText type="small" themeColor="textSecondary" style={styles.footer}>
               Deals come from the sources shown and are not yet confirmed in person. Tap a source
@@ -143,6 +206,22 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     padding: Spacing.three,
     gap: Spacing.one,
+  },
+  chips: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+    paddingTop: Spacing.three,
+  },
+  chip: {
+    borderRadius: Spacing.four,
+    paddingVertical: Spacing.two,
+    paddingHorizontal: Spacing.three,
+  },
+  kind: {
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    fontSize: 12,
+    lineHeight: 16,
   },
   venue: {
     fontSize: 18,

@@ -1,6 +1,6 @@
 # Happy Hour
 
-A phone app that shows which happy hours are running right now, starting with Bed-Stuy, Brooklyn.
+A phone app that shows which deals are running right now, starting with Bed-Stuy, Brooklyn. It covers drink happy hours and food specials such as wing nights.
 
 The deal data is gathered and refreshed by AI, then spot-checked by a person. That pipeline is the point of the project.
 
@@ -42,9 +42,11 @@ Both must pass before any change counts as done.
 - **Nearest first.** The list is ordered by distance from the phone. If location is off, it falls back to soonest-ending first and says so.
 - **Location stays on the phone.** It is used to sort the list and is never sent anywhere.
 
+- **Drinks and food.** Every deal is tagged drinks, food or both, and the list can be narrowed to either.
+
 ## Roadmap
 
-1. Real Bed-Stuy deals, each with a source and a date. Started: 11 venues from published guides, listing sites and the bars' own Instagram posts. Next: confirm them in person.
+1. Real Bed-Stuy deals, each with a source and a date. Started: 12 venues from published guides, listing sites and the bars' own Instagram posts. Next: a sweep for food specials. Next: confirm them in person.
 2. Deal data moves out of the app into a file the app downloads, so data can refresh without a new build.
 3. A scheduled refresh that re-checks each deal.
 4. A way to flag a deal as wrong.

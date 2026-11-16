@@ -10,12 +10,15 @@ import {
   formatClock,
   formatDate,
   formatMinutes,
+  kindLabel,
+  matchesFilter,
   minutesLeft,
   nextStartToday,
 } from '../src/lib/deals.ts';
 import { formatDistance, milesBetween } from '../src/lib/distance.ts';
 
 const base = {
+  kind: 'drinks' as const,
   offer: 'x',
   address: 'x',
   lat: 40.68,
@@ -90,12 +93,20 @@ assert.equal(minutesLeft(untilMidnight, at(0, 0, 16)), null, 'over at midnight')
 assert.equal(formatDate('2026-11-15'), 'Nov 15');
 assert.equal(formatDate('2026-01-05'), 'Jan 5');
 
+// Filtering by kind.
+assert.ok(matchesFilter('food', 'all') && matchesFilter('drinks', 'all') && matchesFilter('both', 'all'));
+assert.ok(matchesFilter('food', 'food') && !matchesFilter('drinks', 'food'));
+assert.ok(matchesFilter('drinks', 'drinks') && !matchesFilter('food', 'drinks'));
+assert.ok(matchesFilter('both', 'food') && matchesFilter('both', 'drinks'), 'both shows under either');
+assert.equal(kindLabel('both'), 'Drinks and food');
+
 // The real data: every deal must be complete and well formed.
 const clock = /^([01]\d|2[0-3]):[0-5]\d$/;
 const ids = new Set<string>();
 for (const deal of deals) {
   assert.ok(!ids.has(deal.id), `duplicate id ${deal.id}`);
   ids.add(deal.id);
+  assert.ok(['drinks', 'food', 'both'].includes(deal.kind), `${deal.id}: bad kind`);
   assert.ok(deal.venue && deal.address && deal.offer, `${deal.id}: missing text`);
   assert.ok(deal.days.length > 0 && deal.days.every((d) => d >= 0 && d <= 6), `${deal.id}: bad days`);
   assert.match(deal.start, clock, `${deal.id}: bad start`);
